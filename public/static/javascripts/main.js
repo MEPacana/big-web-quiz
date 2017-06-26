@@ -1,6 +1,15 @@
-// 🔥 The Firebase SDK is initialized and available here!
-//
-// firebase.auth().onAuthStateChanged(user => { });
-// firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-// firebase.messaging().requestPermission().then(() => { });
-// firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+const auth = firebase.auth();
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log(user);
+    }
+});
+
+
+const loginBtn = document.querySelector('.login-btn');
+
+loginBtn.addEventListener('click', (e) => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider);
+});
