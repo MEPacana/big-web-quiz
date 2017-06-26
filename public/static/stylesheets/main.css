@@ -1,0 +1,15 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    height: 100vh;
+    margin: 0;
+    font-size: 1.6em;;
+}
