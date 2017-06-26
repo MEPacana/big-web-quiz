@@ -16,13 +16,20 @@
     </head>
 
     <body>
-        <div class="screen login-screen">
-            <h1>Big Web Quiz</h1>
-            <button class="login-btn">Login with Google</button>
-        </div>
+        <div id="root"></div>
 
-        <div class="screen question-screen hidden"></div>
+        <template id="signin-screen">
+            <div>
+                <h1>Big Web Quiz</h1>
+                <button class="login-btn">Sign in with Google</button>
+            </div>
+        </template>
 
+        <template id="question-screen">
+            <div></div>
+        </template>
+
+        <script defer src="static/javascripts/router.js"></script>
         <script defer src="static/javascripts/main.js"></script>
     </body>
 </html>

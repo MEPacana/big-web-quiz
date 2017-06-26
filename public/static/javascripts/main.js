@@ -1,8 +1,19 @@
+const router = new Router({
+    container: '#root',
+    routes: {
+        signin: 'template#signin-screen',
+        question: 'template#question-screen'
+    },
+    initial: 'signin'
+});
+
+
 const auth = firebase.auth();
 const database = firebase.database();
 
 auth.onAuthStateChanged((user) => {
     if (user) {
+        router.navigate('question');
         database.ref('active-question').on('value', (snapshot) => (
             displayQuestion(snapshot.val())
         ));
@@ -23,13 +34,5 @@ function displayQuestion(question) {
     if (!question) {
         return undefined;
     }
-    displayScreen('question');
     console.log(question);
-}
-
-function displayScreen(screen) {
-    const screens = Array.from(document.querySelectorAll('.screen'));
-    const activeScreen = document.querySelector(`.screen.${screen}-screen`);
-    screens.forEach((screen) => screen.classList.add('hidden'));
-    activeScreen.classList.remove('hidden');
 }
