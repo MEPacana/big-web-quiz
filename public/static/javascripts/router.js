@@ -13,7 +13,7 @@ function Router({ container, routes = {}, initial }) {
 }
 
 Router.prototype.navigate = function(route) {
-    if (this.current) {
+    if (this.current && typeof this.current.destroy === 'function') {
         this.current.destroy();
     }
 
@@ -23,6 +23,8 @@ Router.prototype.navigate = function(route) {
     const screen = new this.routes[route];
     const template = resolveElement(screen.template).innerHTML;
     this.container.innerHTML = template;
-    screen.ready();
+    if (typeof screen.ready === 'function') {
+        screen.ready();
+    }
     this.current = screen;
 };
