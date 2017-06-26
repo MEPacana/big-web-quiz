@@ -1,8 +1,11 @@
 const auth = firebase.auth();
+const database = firebase.database();
 
 auth.onAuthStateChanged((user) => {
     if (user) {
-        console.log(user);
+        database.ref('active-question').on('value', (snapshot) => {
+            console.log(snapshot.val());
+        });
     }
 });
 
@@ -13,3 +16,11 @@ loginBtn.addEventListener('click', (e) => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider);
 });
+
+
+function displayActiveQuestion(question) {
+    if (!question) {
+        return undefined;
+    }
+    console.log(question);
+}
