@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "Sequel Regular";
+    src: url("../fonts/Sequel-Regular.ttf") format("truetype");
+}
+
 *,
 *::before,
 *::after {
@@ -11,7 +16,30 @@ html {
 body {
     height: 100vh;
     margin: 0;
-    font-size: 1.6em;;
+    font-size: 1.6em;
+    background: #fc00ff;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #00dbde, #fc00ff);
+    background: linear-gradient(to right, #00dbde, #fc00ff);
+}
+
+.signin-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+h1 {
+    font-family: "Sequel Regular";
+    font-size: 6.8em;
+    color: #EEFF41;
+    margin: 0;
+}
+
+img.login-btn {
+    height: 70px;
+    margin-top: 15px;
 }
 
 .hidden {
