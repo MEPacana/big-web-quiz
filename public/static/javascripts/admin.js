@@ -69,7 +69,7 @@ function AdminScreen() {
             database.ref('questions').push({ text, choices }).then(resetForm);
         }
     }
-    function handleEdit(e) {
+    function handleEditQuestion(e) {
         if (!e.target.matches('button.edit')) {
             return undefined;
         }
@@ -131,7 +131,7 @@ function AdminScreen() {
         $('form').addEventListener('submit', handleSubmit);
         database.ref('questions').on('child_added', handleRefOnChildAdded);
         database.ref('questions').on('child_changed', handleRefOnChildChanged);
-        document.addEventListener('click', handleEdit);
+        document.addEventListener('click', handleEditQuestion);
         document.addEventListener('click', handleRemoveChoice);
     };
 
@@ -140,7 +140,7 @@ function AdminScreen() {
         $('form').removeEventListener('submit', handleSubmit);
         database.ref('questions').off('child_added', handleRefOnChildAdded);
         database.ref('questions').off('child_changed', handleRefOnChildChanged);
-        document.removeEventListener('click', handleEdit);
+        document.removeEventListener('click', handleEditQuestion);
         document.removeEventListener('click', handleRemoveChoice);
     };
 }
