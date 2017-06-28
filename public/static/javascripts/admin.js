@@ -122,6 +122,32 @@ function AdminScreen() {
         $('#choices').innerHTML = '';
         question.choices.forEach(insertChoice);
     }
+    function handleActiveQuestionValue(snapshot) {
+        const question = snapshot.val();
+        let rendered;
+        if (question) {
+            const questionTmpl = $('template#active-question').innerHTML;
+            rendered = element(questionTmpl);
+            $('p', rendered).textContent = question.text;
+            question.choices.forEach((item) => {
+                const choice = document.createElement('li');
+                choice.textContent = item.text;
+                if (item.correct) {
+                    choice.classList.add('correct');
+                }
+                $('ol', rendered).appendChild(choice);
+            });
+        } else {
+            rendered = document.createElement('p');
+            rendered.textContent = 'There is no active question.';
+            rendered.classList.add('active-question');
+        }
+        if ($('.active-question')) {
+            $('.admin-screen').replaceChild(rendered, $('.active-question'));
+        } else {
+            $('.admin-screen').insertBefore(rendered, $('form'));
+        }
+    }
 
     this.template = 'template#admin-screen';
 
@@ -131,6 +157,7 @@ function AdminScreen() {
         $('form').addEventListener('submit', handleSubmit);
         database.ref('questions').on('child_added', handleRefOnChildAdded);
         database.ref('questions').on('child_changed', handleRefOnChildChanged);
+        database.ref('active-question').on('value', handleActiveQuestionValue);
         document.addEventListener('click', handleEditQuestion);
         document.addEventListener('click', handleRemoveChoice);
     };
@@ -140,6 +167,7 @@ function AdminScreen() {
         $('form').removeEventListener('submit', handleSubmit);
         database.ref('questions').off('child_added', handleRefOnChildAdded);
         database.ref('questions').off('child_changed', handleRefOnChildChanged);
+        database.ref('active-question').off('value', handleActiveQuestionValue);
         document.removeEventListener('click', handleEditQuestion);
         document.removeEventListener('click', handleRemoveChoice);
     };

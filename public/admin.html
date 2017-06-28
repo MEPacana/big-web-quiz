@@ -34,7 +34,7 @@
         </template>
 
         <template id="admin-screen">
-            <div>
+            <div class="admin-screen">
                 <h1>Admin Screen</h1>
 
                 <form action="#" method="post">
@@ -73,6 +73,14 @@
                 <ol></ol>
                 <button class="edit">Edit Question</button>
             </li>
+        </template>
+
+        <template id="active-question">
+            <div class="active-question">
+                <p>Question textarea</p>
+                <ol></ol>
+                <button class="remove">Remove</button>
+            </div>
         </template>
 
         <script defer src="static/javascripts/router.js"></script>
