@@ -76,6 +76,13 @@ function AdminScreen() {
         const key = e.target.closest('li').dataset.key;
         editQuestion(key, questions[key]);
     }
+    function handleRemoveQuestion(e) {
+        if (!e.target.matches('.questions button.remove')) {
+            return undefined;
+        }
+        const key = e.target.closest('li').dataset.key;
+        database.ref(`questions/${key}`).remove();
+    }
     function handleRemoveChoice(e) {
         if (!e.target.matches('#choices button.remove')) {
             return undefined;
@@ -119,6 +126,10 @@ function AdminScreen() {
         const oldQuestion = $(`[data-key="${snapshot.key}"]`, $questions);
         $questions.replaceChild(rendered, oldQuestion);
         questions[snapshot.key] = question;
+    }
+    function handleRefOnChildRemoved(snapshot) {
+        const $questions = $('.questions');
+        $(`[data-key="${snapshot.key}"]`, $questions).remove();
     }
     function renderQuestion(key, question) {
         const questionTmpl = $('template#question').innerHTML;
@@ -176,8 +187,10 @@ function AdminScreen() {
         $('form').addEventListener('submit', handleSubmit);
         database.ref('questions').on('child_added', handleRefOnChildAdded);
         database.ref('questions').on('child_changed', handleRefOnChildChanged);
+        database.ref('questions').on('child_removed', handleRefOnChildRemoved);
         database.ref('active-question').on('value', handleActiveQuestionValue);
         document.addEventListener('click', handleEditQuestion);
+        document.addEventListener('click', handleRemoveQuestion);
         document.addEventListener('click', handleRemoveChoice);
         document.addEventListener('click', handleRemoveActiveQuestion);
         document.addEventListener('click', handleMakeActiveQuestion);
@@ -188,8 +201,10 @@ function AdminScreen() {
         $('form').removeEventListener('submit', handleSubmit);
         database.ref('questions').off('child_added', handleRefOnChildAdded);
         database.ref('questions').off('child_changed', handleRefOnChildChanged);
+        database.ref('questions').off('child_removed', handleRefOnChildRemoved);
         database.ref('active-question').off('value', handleActiveQuestionValue);
         document.removeEventListener('click', handleEditQuestion);
+        document.removeEventListener('click', handleRemoveQuestion);
         document.removeEventListener('click', handleRemoveChoice);
         document.removeEventListener('click', handleRemoveActiveQuestion);
         document.removeEventListener('click', handleMakeActiveQuestion);
