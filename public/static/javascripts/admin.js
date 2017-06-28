@@ -76,6 +76,12 @@ function AdminScreen() {
         const key = e.target.closest('li').dataset.key;
         editQuestion(key, questions[key]);
     }
+    function handleRemoveChoice(e) {
+        if (!e.target.matches('button.remove')) {
+            return undefined;
+        }
+        e.target.closest('li').remove();
+    }
     function handleRefOnChildAdded(snapshot) {
         const question = snapshot.val();
         const rendered = renderQuestion(snapshot.key, question);
@@ -126,6 +132,7 @@ function AdminScreen() {
         database.ref('questions').on('child_added', handleRefOnChildAdded);
         database.ref('questions').on('child_changed', handleRefOnChildChanged);
         document.addEventListener('click', handleEdit);
+        document.addEventListener('click', handleRemoveChoice);
     };
 
     this.destroy = function() {
@@ -134,6 +141,7 @@ function AdminScreen() {
         database.ref('questions').off('child_added', handleRefOnChildAdded);
         database.ref('questions').off('child_changed', handleRefOnChildChanged);
         document.removeEventListener('click', handleEdit);
+        document.removeEventListener('click', handleRemoveChoice);
     };
 }
 
