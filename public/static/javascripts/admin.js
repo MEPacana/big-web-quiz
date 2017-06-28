@@ -61,8 +61,25 @@ function AdminScreen() {
         });
         database.ref('questions').push({ text, choices }).then(resetForm);
     }
-    function handleRefOnChildAdded(snapshot) {
-        console.log(snapshot.val());
+    function insertQuestion(snapshot) {
+        const question = snapshot.val();
+        const questionTmpl = $('template#question').innerHTML;
+        const rendered = element(questionTmpl);
+        $('p', rendered).textContent = question.text;
+        question.choices.forEach((item) => {
+            const choice = document.createElement('li');
+            choice.textContent = item.text;
+            if (item.correct) {
+                choice.classList.add('correct');
+            }
+            $('ol', rendered).appendChild(choice);
+        });
+        const questions = $('.questions');
+        if (questions.children.length > 0) {
+            questions.insertBefore(rendered, questions.firstElementChild);
+        } else {
+            questions.appendChild(rendered);
+        }
     }
 
     this.template = 'template#admin-screen';
@@ -71,13 +88,13 @@ function AdminScreen() {
         resetForm();
         $('button[type="button"]').addEventListener('click', insertChoice);
         $('form').addEventListener('submit', handleSubmit);
-        database.ref('questions').on('child_added', handleRefOnChildAdded);
+        database.ref('questions').on('child_added', insertQuestion);
     };
 
     this.destroy = function() {
         $('button[type="button"]').removeEventListener('click', insertChoice);
         $('form').removeEventListener('submit', handleSubmit);
-        database.ref('questions').off('child_added', handleRefOnChildAdded);
+        database.ref('questions').off('child_added', insertQuestion);
     };
 }
 
