@@ -37,8 +37,14 @@ function SignInScreen() {
 
 
 function AdminScreen() {
+    const auth = firebase.auth();
     const database = firebase.database();
     const questions = {};
+    const handleAuthStateChanged = auth.onAuthStateChanged((user) => {
+        if (!user || user.email !== 'admin@gdgcebu.org') {
+            router.navigate('signin');
+        }
+    });
 
     function resetForm() {
         $('form').question.value = '';
@@ -178,6 +184,12 @@ function AdminScreen() {
             $('.admin-screen').insertBefore(rendered, $('form'));
         }
     }
+    function handleSignOut(e) {
+        if (!e.target.matches('button.signout')) {
+            return undefined;
+        }
+        auth.signOut();
+    }
 
     this.template = 'template#admin-screen';
 
@@ -194,6 +206,7 @@ function AdminScreen() {
         document.addEventListener('click', handleRemoveChoice);
         document.addEventListener('click', handleRemoveActiveQuestion);
         document.addEventListener('click', handleMakeActiveQuestion);
+        document.addEventListener('click', handleSignOut);
     };
 
     this.destroy = function() {
@@ -208,6 +221,7 @@ function AdminScreen() {
         document.removeEventListener('click', handleRemoveChoice);
         document.removeEventListener('click', handleRemoveActiveQuestion);
         document.removeEventListener('click', handleMakeActiveQuestion);
+        document.removeEventListener('click', handleSignOut);
     };
 }
 
