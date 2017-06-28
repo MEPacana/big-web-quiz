@@ -38,6 +38,7 @@ function SignInScreen() {
 
 function AdminScreen() {
     const database = firebase.database();
+    const questions = {};
 
     function resetForm() {
         $('form').question.value = '';
@@ -46,25 +47,58 @@ function AdminScreen() {
             insertChoice();
         }
     }
-    function insertChoice() {
+    function insertChoice(choice={}) {
         const choiceTmpl = $('template#choice').innerHTML;
-        const choice = element(choiceTmpl);
-        $('#choices').appendChild(choice);
+        const rendered = element(choiceTmpl);
+        $('input[type="text"]', rendered).value = choice.text || '';
+        $('input[type="radio"]', rendered).checked = choice.correct;
+        $('#choices').appendChild(rendered);
     }
     function handleSubmit(e) {
         e.preventDefault();
+        const key = e.target.dataset.key;
         const text = e.target.question.value;
         const choices = $$('#choices li').map((choice) => {
             const text = $('input[type="text"]', choice).value;
             const correct = $('input[type="radio"]', choice).checked;
             return { text, correct };
         });
-        database.ref('questions').push({ text, choices }).then(resetForm);
+        if (key) {
+            database.ref(`questions/${key}`).set({ text, choices }).then(resetForm);
+        } else {
+            database.ref('questions').push({ text, choices }).then(resetForm);
+        }
     }
-    function insertQuestion(snapshot) {
+    function handleEdit(e) {
+        if (!e.target.matches('button.edit')) {
+            return undefined;
+        }
+        const key = e.target.closest('li').dataset.key;
+        editQuestion(key, questions[key]);
+    }
+    function handleRefOnChildAdded(snapshot) {
         const question = snapshot.val();
+        const rendered = renderQuestion(snapshot.key, question);
+        const $questions = $('.questions');
+        if ($questions.children.length > 0) {
+            $questions.insertBefore(rendered, $questions.firstElementChild);
+        } else {
+            $questions.appendChild(rendered);
+        }
+        questions[snapshot.key] = question;
+    }
+    function handleRefOnChildChanged(snapshot) {
+        const question = snapshot.val();
+        const rendered = renderQuestion(snapshot.key, question);
+        const $questions = $('.questions');
+        const oldQuestion = $(`[data-key="${snapshot.key}"]`, $questions);
+        $questions.replaceChild(rendered, oldQuestion);
+        questions[snapshot.key] = question;
+    }
+    function renderQuestion(key, question) {
         const questionTmpl = $('template#question').innerHTML;
         const rendered = element(questionTmpl);
+        rendered.dataset.key = key;
         $('p', rendered).textContent = question.text;
         question.choices.forEach((item) => {
             const choice = document.createElement('li');
@@ -74,12 +108,13 @@ function AdminScreen() {
             }
             $('ol', rendered).appendChild(choice);
         });
-        const questions = $('.questions');
-        if (questions.children.length > 0) {
-            questions.insertBefore(rendered, questions.firstElementChild);
-        } else {
-            questions.appendChild(rendered);
-        }
+        return rendered;
+    }
+    function editQuestion(key, question) {
+        $('form').question.value = question.text;
+        $('form').dataset.key = key;
+        $('#choices').innerHTML = '';
+        question.choices.forEach(insertChoice);
     }
 
     this.template = 'template#admin-screen';
@@ -88,13 +123,17 @@ function AdminScreen() {
         resetForm();
         $('button[type="button"]').addEventListener('click', insertChoice);
         $('form').addEventListener('submit', handleSubmit);
-        database.ref('questions').on('child_added', insertQuestion);
+        database.ref('questions').on('child_added', handleRefOnChildAdded);
+        database.ref('questions').on('child_changed', handleRefOnChildChanged);
+        document.addEventListener('click', handleEdit);
     };
 
     this.destroy = function() {
         $('button[type="button"]').removeEventListener('click', insertChoice);
         $('form').removeEventListener('submit', handleSubmit);
-        database.ref('questions').off('child_added', insertQuestion);
+        database.ref('questions').off('child_added', handleRefOnChildAdded);
+        database.ref('questions').off('child_changed', handleRefOnChildChanged);
+        document.removeEventListener('click', handleEdit);
     };
 }
 
