@@ -77,10 +77,16 @@ function AdminScreen() {
         editQuestion(key, questions[key]);
     }
     function handleRemoveChoice(e) {
-        if (!e.target.matches('button.remove')) {
+        if (!e.target.matches('#choices button.remove')) {
             return undefined;
         }
         e.target.closest('li').remove();
+    }
+    function handleRemoveActiveQuestion(e) {
+        if (!e.target.matches('.active-question button.remove')) {
+            return undefined;
+        }
+        database.ref('active-question').remove();
     }
     function handleRefOnChildAdded(snapshot) {
         const question = snapshot.val();
@@ -160,6 +166,7 @@ function AdminScreen() {
         database.ref('active-question').on('value', handleActiveQuestionValue);
         document.addEventListener('click', handleEditQuestion);
         document.addEventListener('click', handleRemoveChoice);
+        document.addEventListener('click', handleRemoveActiveQuestion);
     };
 
     this.destroy = function() {
@@ -170,6 +177,7 @@ function AdminScreen() {
         database.ref('active-question').off('value', handleActiveQuestionValue);
         document.removeEventListener('click', handleEditQuestion);
         document.removeEventListener('click', handleRemoveChoice);
+        document.removeEventListener('click', handleRemoveActiveQuestion);
     };
 }
 
