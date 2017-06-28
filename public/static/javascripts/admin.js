@@ -98,6 +98,7 @@ function AdminScreen() {
             delete choice.correct;
             return choice;
         });
+        question.key = key;
         database.ref('active-question').set(question);
     }
     function handleRefOnChildAdded(snapshot) {
