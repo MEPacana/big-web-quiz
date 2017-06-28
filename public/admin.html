@@ -36,7 +36,32 @@
         <template id="admin-screen">
             <div>
                 <h1>Admin Screen</h1>
+
+                <form action="#" method="post">
+                    <div>
+                        <label for="question">Question</label>
+                        <textarea id="question" name="question"></textarea>
+                    </div>
+                    <div>
+                        <label for="choices">Choices</label>
+                        <ol id="choices"></ol>
+                        <button type="button">Add Choice</button>
+                    </div>
+                    <div>
+                        <button>Save Question</button>
+                    </div>
+                </form>
             </div>
+        </template>
+
+        <template id="choice">
+            <li>
+                <input type="text" name="choice">
+                <label>
+                    <input type="radio" name="correct" value="0">
+                    Correct?
+                </label>
+            </li>
         </template>
 
         <script defer src="static/javascripts/router.js"></script>
