@@ -88,6 +88,18 @@ function AdminScreen() {
         }
         database.ref('active-question').remove();
     }
+    function handleMakeActiveQuestion(e) {
+        if (!e.target.matches('button.activate')) {
+            return undefined;
+        }
+        const key = e.target.closest('li').dataset.key;
+        const question = Object.assign({}, questions[key]);
+        question.choices = question.choices.map((choice) => {
+            delete choice.correct;
+            return choice;
+        });
+        database.ref('active-question').set(question);
+    }
     function handleRefOnChildAdded(snapshot) {
         const question = snapshot.val();
         const rendered = renderQuestion(snapshot.key, question);
@@ -167,6 +179,7 @@ function AdminScreen() {
         document.addEventListener('click', handleEditQuestion);
         document.addEventListener('click', handleRemoveChoice);
         document.addEventListener('click', handleRemoveActiveQuestion);
+        document.addEventListener('click', handleMakeActiveQuestion);
     };
 
     this.destroy = function() {
@@ -178,6 +191,7 @@ function AdminScreen() {
         document.removeEventListener('click', handleEditQuestion);
         document.removeEventListener('click', handleRemoveChoice);
         document.removeEventListener('click', handleRemoveActiveQuestion);
+        document.removeEventListener('click', handleMakeActiveQuestion);
     };
 }
 
