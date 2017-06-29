@@ -26,7 +26,24 @@
         </template>
 
         <template id="question-screen">
-            <div></div>
+            <p>Fetching question...</p>
+        </template>
+
+        <template id="active-question">
+            <form action="#" method="post">
+                <h1>Question Text</h1>
+                <ol></ol>
+                <button>Submit Answer</button>
+            </form>
+        </template>
+
+        <template id="choice">
+            <li>
+                <label>
+                    <input type="radio" name="choice">
+                    <span>Choice Text</span>
+                </label>
+            </li>
         </template>
 
         <script defer src="static/javascripts/router.js"></script>

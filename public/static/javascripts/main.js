@@ -37,8 +37,31 @@ function SignInScreen() {
 function QuestionScreen() {
     const database = firebase.database();
     const handleRefOnValue = (snapshot) => {
-        console.log(snapshot.val());
+        const question = snapshot.val();
+        if (question) {
+            displayActiveQuestion(question);
+        } else {
+            displayNoActiveQuestion();
+        }
     };
+    function displayActiveQuestion(question) {
+        const container = $('#root');
+        container.innerHTML = '';
+        const questionTmpl = $('template#active-question').innerHTML;
+        const choiceTmpl = $('template#choice').innerHTML;
+        const rendered = element(questionTmpl);
+        $('h1', rendered).textContent = question.text;
+        question.choices.forEach((choice, i) => {
+            const li = element(choiceTmpl);
+            $('span', li).textContent = choice.text;
+            $('input', li).value = i;
+            $('ol', rendered).appendChild(li);
+        });
+        container.appendChild(rendered);
+    }
+    function displayNoActiveQuestion() {
+
+    }
 
     this.template = 'template#question-screen';
 
@@ -49,4 +72,19 @@ function QuestionScreen() {
     this.destroy = function() {
         database.ref('active-question').off('value', handleRefOnValue);
     };
+}
+
+
+function $(selector, context=document) {
+    return context.querySelector(selector);
+}
+
+function $$(selector, context=document) {
+    return Array.from(context.querySelectorAll(selector));
+}
+
+function element(template, stage) {
+    stage = stage || document.createElement('div');
+    stage.innerHTML = template;
+    return stage.firstElementChild;
 }
