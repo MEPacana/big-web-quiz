@@ -60,7 +60,11 @@ function QuestionScreen() {
         container.appendChild(rendered);
     }
     function displayNoActiveQuestion() {
-
+        const container = $('#root');
+        container.innerHTML = '';
+        const rendered = document.createElement('p');
+        rendered.textContent = 'No active question at the moment.';
+        container.appendChild(rendered);
     }
 
     this.template = 'template#question-screen';
