@@ -35,6 +35,7 @@ function SignInScreen() {
 
 
 function QuestionScreen() {
+    const auth = firebase.auth();
     const database = firebase.database();
     const handleRefOnValue = (snapshot) => {
         const question = snapshot.val();
@@ -44,12 +45,24 @@ function QuestionScreen() {
             displayNoActiveQuestion();
         }
     };
+    function handleSubmit(e) {
+        e.preventDefault();
+        const answer = e.target.choice.value;
+        const key = e.target.dataset.key;
+        const user = auth.currentUser.uid;
+        if (!answer) {
+            return undefined;
+        }
+        const ref = `questions/${key}/answers/${user}`;
+        database.ref(ref).set(answer).then(activeQuestionAnswered);
+    }
     function displayActiveQuestion(question) {
         const container = $('#root');
         container.innerHTML = '';
         const questionTmpl = $('template#active-question').innerHTML;
         const choiceTmpl = $('template#choice').innerHTML;
         const rendered = element(questionTmpl);
+        rendered.dataset.key = question.key;
         $('h1', rendered).textContent = question.text;
         question.choices.forEach((choice, i) => {
             const li = element(choiceTmpl);
@@ -66,15 +79,20 @@ function QuestionScreen() {
         rendered.textContent = 'No active question at the moment.';
         container.appendChild(rendered);
     }
+    function activeQuestionAnswered() {
+        console.log('You have answered the active question.');
+    }
 
     this.template = 'template#question-screen';
 
     this.ready = function() {
         database.ref('active-question').on('value', handleRefOnValue);
+        document.addEventListener('submit', handleSubmit);
     };
 
     this.destroy = function() {
         database.ref('active-question').off('value', handleRefOnValue);
+        document.removeEventListener('submit', handleSubmit);
     };
 }
 
