@@ -7,7 +7,7 @@ exports.updateUserScore = functions.database.ref('users/{userId}/answers/{questi
             const choices = snapshot.val();
             const correctAnswer = choices.findIndex((choice) => choice.correct);
             const userAnswer = parseInt(e.data.val(), 10);
-            e.data.ref.parent.parent.child('score').once('value', (snapshot) => {
+            e.data.adminRef.parent.parent.child('score').once('value', (snapshot) => {
                 const score = snapshot.val() || 0;
                 const userRef = snapshot.ref.parent;
                 if (userAnswer === correctAnswer) {

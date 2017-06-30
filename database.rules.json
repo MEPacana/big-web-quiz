@@ -10,8 +10,14 @@
     },
     "users": {
       "$uid": {
-        ".read": "auth.uid == $uid",
-        ".write": "auth.uid == $uid"
+        "score": {
+          ".read": "auth.uid == '86TzrAvgwaQ8zHDlZgETY1l1rts2'",
+          ".write": "auth.uid == '86TzrAvgwaQ8zHDlZgETY1l1rts2'"
+        },
+        "answers": {
+          ".read": "auth.uid == $uid",
+          ".write": "auth.uid == $uid"
+        }
       }
     }
   }
