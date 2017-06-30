@@ -74,11 +74,16 @@ function QuestionScreen() {
         }
         navigator.serviceWorker.getRegistration().then((registration) => {
             registration.pushManager.getSubscription().then((subscription) => {
+                const user = auth.currentUser.uid;
                 if (subscription) {
-                    return subscription.unsubscribe();
+                    subscription.unsubscribe();
+                    database.ref(`users/${user}/subscription`).remove();
+                    displayPushNotificationButton(false);
+                    return undefined;
                 }
-                registration.pushManager.subscribe().then((subscription) => {
-                    console.log(subscription.toJSON());
+                registration.pushManager.subscribe({ userVisibleOnly: true }).then((subscription) => {
+                    database.ref(`users/${user}/subscription`).set(subscription.toJSON())
+                    displayPushNotificationButton(true);
                 });
             });
         });
@@ -113,6 +118,14 @@ function QuestionScreen() {
             .forEach((choice) => choice.disabled = true);
         $('button', form).remove();
     }
+    function displayPushNotificationButton(subscribed) {
+        const subscribeButton = $('button.subscribe');
+        if (subscribed) {
+            subscribeButton.textContent = 'Stop Notifying Me';
+        } else {
+            subscribeButton.textContent = 'Notify Me';
+        }
+    }
 
     this.template = 'template#question-screen';
 
@@ -123,11 +136,10 @@ function QuestionScreen() {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistration().then((registration) => {
                 registration.pushManager.getSubscription().then((subscription) => {
-                    const subscribeButton = $('button.subscribe');
                     if (subscription) {
-                        subscribeButton.textContent = 'Stop Notifying Me';
+                        displayPushNotificationButton(true);
                     } else {
-                        subscribeButton.textContent = 'Notify Me';
+                        displayPushNotificationButton(false);
                     }
                 });
             });
