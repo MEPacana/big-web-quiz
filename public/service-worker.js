@@ -1,6 +1,7 @@
 const cacheName = 'cache1';
 const urlsToCache = [
     '/',
+    'manifest.json',
     'static/stylesheets/main.css',
     '__/firebase/4.1.3/firebase-app.js',
     '__/firebase/4.1.3/firebase-auth.js',
