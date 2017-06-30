@@ -47,28 +47,32 @@ exports.notifyOnActiveQuestion = functions.database.ref('active-question').onWri
                     subscriptions.push(user.subscription);
                 }
             });
-            subscriptions.forEach((subscription) => {
-                if (subscription.keys) {
-                    webpush.sendNotification(subscription, JSON.stringify(notification), {
-                        gcmAPIKey: 'AIzaSyAbpFzMztXs5ri6JukeHPcYobauLzQBUe8'
-                    });
-                } else {
-                    const subscriptionId = subscription.endpoint.split(/\//g).pop();
-                    const options = {
-                        url: 'https://android.googleapis.com/gcm/send',
-                        headers: {
-                            Authorization: 'key=AIzaSyAbpFzMztXs5ri6JukeHPcYobauLzQBUe8'
-                        },
-                        body: {
-                            registration_ids: subscriptionId,
-                            notification: notification
-                        },
-                        json: true
-                    };
-                    request.post(options);
-                }
-            });
+            subscriptions.forEach((subscription) =>
+                sendPushNotification(subscription, notification));
             resolve();
         });
     });
 });
+
+function sendPushNotification(subscription, notification) {
+    if (subscription.keys) {
+        webpush.sendNotification(subscription, JSON.stringify(notification), {
+            gcmAPIKey: 'AIzaSyAbpFzMztXs5ri6JukeHPcYobauLzQBUe8',
+            TTL: 3 * 60
+        });
+    } else {
+        const subscriptionId = subscription.endpoint.split(/\//g).pop();
+        const options = {
+            url: 'https://android.googleapis.com/gcm/send',
+            headers: {
+                Authorization: 'key=AIzaSyAbpFzMztXs5ri6JukeHPcYobauLzQBUe8'
+            },
+            body: {
+                registration_ids: subscriptionId,
+                notification: notification
+            },
+            json: true
+        };
+        request.post(options);
+    }
+}
