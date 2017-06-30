@@ -1,6 +1,7 @@
 const cacheName = 'cache1';
 const urlsToCache = [
     '/',
+    'manifest.json',
     'static/stylesheets/main.css',
     '__/firebase/4.1.3/firebase-app.js',
     '__/firebase/4.1.3/firebase-auth.js',
@@ -43,3 +44,38 @@ self.addEventListener('activate', (event) => {
         })
     );
 })
+
+self.addEventListener('push', (event) => {
+    const notification = event.data ? event.data.json() : {
+        title: 'New Question Available',
+        body: 'Click to view new question.'
+    };
+    event.waitUntil(
+        self.registration.showNotification(notification.title, {
+            body: notification.body,
+            icon: notification.icon,
+            tag: 'big-web-quiz'
+        })
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.waitUntil(
+        self.registration.getNotifications({ tag: 'big-web-quiz' })
+            .then((notifications) => {
+                notifications.forEach((notification) => notification.close());
+            })
+            .then(() => {
+                const options = { includeUncontrolled: true };
+                return self.clients.matchAll(options).then((clients) => {
+                    const client = clients.find((client) =>
+                        (new URL(client.url)).pathname === '/');
+                    if (client) {
+                        client.focus();
+                    } else {
+                        self.clients.openWindow('/');
+                    }
+                });
+            })
+    );
+});

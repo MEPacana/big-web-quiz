@@ -10,6 +10,7 @@ const router = new Router({
 
 function SignInScreen() {
     const auth = firebase.auth();
+
     const handleAuthStateChanged = auth.onAuthStateChanged((user) => {
         if (user) {
             router.navigate('question');
@@ -37,6 +38,7 @@ function SignInScreen() {
 function QuestionScreen() {
     const auth = firebase.auth();
     const database = firebase.database();
+
     const handleRefOnValue = (snapshot) => {
         const question = snapshot.val();
         if (question) {
@@ -66,9 +68,23 @@ function QuestionScreen() {
         database.ref(ref).set(answer)
             .then(() => activeQuestionAnswered(answer));
     }
+    function handleClick(e) {
+        if (!e.target.matches('button.subscribe')) {
+            return undefined;
+        }
+        navigator.serviceWorker.getRegistration().then((registration) => {
+            registration.pushManager.getSubscription().then((subscription) => {
+                const user = auth.currentUser.uid;
+                if (subscription) {
+                    unsubscribeFromPushNotifications(subscription);
+                } else {
+                    subscribeToPushNotifications(registration);
+                }
+            });
+        });
+    }
     function displayActiveQuestion(question) {
         const container = $('#root');
-        container.innerHTML = '';
         const questionTmpl = $('template#active-question').innerHTML;
         const choiceTmpl = $('template#choice').innerHTML;
         const rendered = element(questionTmpl);
@@ -80,14 +96,13 @@ function QuestionScreen() {
             $('input', li).value = i;
             $('ol', rendered).appendChild(li);
         });
-        container.appendChild(rendered);
+        container.replaceChild(rendered, container.firstElementChild);
     }
     function displayNoActiveQuestion() {
         const container = $('#root');
-        container.innerHTML = '';
         const rendered = document.createElement('p');
         rendered.textContent = 'No active question at the moment.';
-        container.appendChild(rendered);
+        container.replaceChild(rendered, container.firstElementChild);
     }
     function activeQuestionAnswered(answer) {
         const form = $('form');
@@ -98,17 +113,62 @@ function QuestionScreen() {
             .forEach((choice) => choice.disabled = true);
         $('button', form).remove();
     }
+    function displayPushNotificationButton(subscribed) {
+        const subscribeButton = $('button.subscribe');
+        if (subscribed) {
+            subscribeButton.textContent = 'Stop Notifying Me';
+        } else {
+            subscribeButton.textContent = 'Notify Me';
+        }
+    }
+    function subscribeToPushNotifications(registration) {
+        const user = auth.currentUser.uid;
+        if (Notification.permission === 'granted') {
+            handleNotificationPermission();
+        } else if (Notification.permission === 'default')  {
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    handleNotificationPermission();
+                }
+            });
+        }
+        function handleNotificationPermission() {
+            registration.pushManager.subscribe({ userVisibleOnly: true }).then((subscription) => {
+                database.ref(`users/${user}/subscription`).set(subscription.toJSON())
+                displayPushNotificationButton(true);
+            });
+        }
+    }
+    function unsubscribeFromPushNotifications(subscription) {
+        const user = auth.currentUser.uid;
+        subscription.unsubscribe();
+        database.ref(`users/${user}/subscription`).remove();
+        displayPushNotificationButton(false);
+    }
 
     this.template = 'template#question-screen';
 
     this.ready = function() {
         database.ref('active-question').on('value', handleRefOnValue);
         document.addEventListener('submit', handleSubmit);
+        document.addEventListener('click', handleClick);
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then((registration) => {
+                registration.pushManager.getSubscription().then((subscription) => {
+                    if (subscription) {
+                        displayPushNotificationButton(true);
+                    } else {
+                        displayPushNotificationButton(false);
+                    }
+                });
+            });
+        }
     };
 
     this.destroy = function() {
         database.ref('active-question').off('value', handleRefOnValue);
         document.removeEventListener('submit', handleSubmit);
+        document.removeEventListener('click', handleClick);
     };
 }
 
