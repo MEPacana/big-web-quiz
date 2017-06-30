@@ -35,18 +35,94 @@ function SignInScreen() {
 
 
 function QuestionScreen() {
+    const auth = firebase.auth();
     const database = firebase.database();
     const handleRefOnValue = (snapshot) => {
-        console.log(snapshot.val());
+        const question = snapshot.val();
+        if (question) {
+            const key = question.key;
+            const user = auth.currentUser.uid;
+            database.ref(`users/${user}/answers/${key}`)
+                .once('value', (snapshot) => {
+                    displayActiveQuestion(question);
+                    const answer = snapshot.val();
+                    if (answer) {
+                        activeQuestionAnswered(answer);
+                    }
+                });
+        } else {
+            displayNoActiveQuestion();
+        }
     };
+    function handleSubmit(e) {
+        e.preventDefault();
+        const answer = e.target.choice.value;
+        const key = e.target.dataset.key;
+        const user = auth.currentUser.uid;
+        if (!answer) {
+            return undefined;
+        }
+        const ref = `users/${user}/answers/${key}`;
+        database.ref(ref).set(answer)
+            .then(() => activeQuestionAnswered(answer));
+    }
+    function displayActiveQuestion(question) {
+        const container = $('#root');
+        container.innerHTML = '';
+        const questionTmpl = $('template#active-question').innerHTML;
+        const choiceTmpl = $('template#choice').innerHTML;
+        const rendered = element(questionTmpl);
+        rendered.dataset.key = question.key;
+        $('h1', rendered).textContent = question.text;
+        question.choices.forEach((choice, i) => {
+            const li = element(choiceTmpl);
+            $('span', li).textContent = choice.text;
+            $('input', li).value = i;
+            $('ol', rendered).appendChild(li);
+        });
+        container.appendChild(rendered);
+    }
+    function displayNoActiveQuestion() {
+        const container = $('#root');
+        container.innerHTML = '';
+        const rendered = document.createElement('p');
+        rendered.textContent = 'No active question at the moment.';
+        container.appendChild(rendered);
+    }
+    function activeQuestionAnswered(answer) {
+        const form = $('form');
+        const selected = $(`input[value="${answer}"]`, form);
+        selected.checked = true;
+        selected.closest('li').classList.add('selected');
+        $$('input[type="radio"]', form)
+            .forEach((choice) => choice.disabled = true);
+        $('button', form).remove();
+    }
 
     this.template = 'template#question-screen';
 
     this.ready = function() {
         database.ref('active-question').on('value', handleRefOnValue);
+        document.addEventListener('submit', handleSubmit);
     };
 
     this.destroy = function() {
         database.ref('active-question').off('value', handleRefOnValue);
+        document.removeEventListener('submit', handleSubmit);
     };
+}
+
+
+function $(selector, context=document) {
+    return context.querySelector(selector);
+}
+
+function $$(selector, context=document) {
+    return Array.from(context.querySelectorAll(selector));
+}
+
+function element(template, stage) {
+    stage = stage || document.createElement('div');
+    stage.innerHTML = template;
+    return stage.firstElementChild;
 }
