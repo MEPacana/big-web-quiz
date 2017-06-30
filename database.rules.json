@@ -20,6 +20,10 @@
           	".write": "auth.uid == $uid",
           	".validate": "!data.exists()"
           }
+        },
+        "subscription": {
+          ".read": "auth.uid == $uid",
+          ".write": "auth.uid == $uid"
         }
       }
     }
