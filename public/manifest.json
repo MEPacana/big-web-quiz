@@ -1,0 +1,22 @@
+{
+  "name": "Big Web Quiz",
+  "short_name": "Big Web Quiz",
+  "description": "the PWA Big Web Quiz",
+  "icons": [{
+    "src": "/static/images/icon-144.png",
+    "type": "image/png",
+    "sizes": "144x144"
+  }, {
+    "src": "/static/images/icon-192.png",
+    "type": "image/png",
+    "sizes": "192x192"
+  }, {
+    "src": "/static/images/icon-512.png",
+    "type": "image/png",
+    "sizes": "512x512"
+  }],
+  "start_url": "/",
+  "display": "fullscreen",
+  "theme_color": "#ffeb3b",
+  "background_color": "#ffffff"
+}
