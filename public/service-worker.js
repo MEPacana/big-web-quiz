@@ -57,3 +57,24 @@ self.addEventListener('push', (event) => {
         })
     );
 });
+
+self.addEventListener('notificationclick', (event) => {
+    event.waitUntil(
+        self.registration.getNotifications({ tag: 'big-web-quiz' })
+            .then((notifications) => {
+                notifications.forEach((notification) => notification.close());
+            })
+            .then(() => {
+                const options = { includeUncontrolled: true };
+                return self.clients.matchAll(options).then((clients) => {
+                    const client = clients.find((client) =>
+                        (new URL(client.url)).pathname === '/');
+                    if (client) {
+                        client.focus();
+                    } else {
+                        self.clients.openWindow('/');
+                    }
+                });
+            })
+    );
+});
