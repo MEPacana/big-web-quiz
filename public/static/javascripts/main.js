@@ -42,7 +42,7 @@ function QuestionScreen() {
         if (question) {
             const key = question.key;
             const user = auth.currentUser.uid;
-            database.ref(`questions/${key}/answers/${user}`)
+            database.ref(`users/${user}/answers/${key}`)
                 .once('value', (snapshot) => {
                     displayActiveQuestion(question);
                     const answer = snapshot.val();
@@ -62,7 +62,7 @@ function QuestionScreen() {
         if (!answer) {
             return undefined;
         }
-        const ref = `questions/${key}/answers/${user}`;
+        const ref = `users/${user}/answers/${key}`;
         database.ref(ref).set(answer)
             .then(() => activeQuestionAnswered(answer));
     }
