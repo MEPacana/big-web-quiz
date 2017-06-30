@@ -45,6 +45,15 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-    const notification = event.data ? event.data.json() : {};
-    console.log(notification);
+    const notification = event.data ? event.data.json() : {
+        title: 'New Question Available',
+        body: 'Click to view new question.'
+    };
+    event.waitUntil(
+        self.registration.showNotification(notification.title, {
+            body: notification.body,
+            icon: notification.icon,
+            tag: 'big-web-quiz'
+        })
+    );
 });
