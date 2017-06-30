@@ -40,7 +40,16 @@ function QuestionScreen() {
     const handleRefOnValue = (snapshot) => {
         const question = snapshot.val();
         if (question) {
-            displayActiveQuestion(question);
+            const key = question.key;
+            const user = auth.currentUser.uid;
+            database.ref(`questions/${key}/answers/${user}`)
+                .once('value', (snapshot) => {
+                    displayActiveQuestion(question);
+                    const answer = snapshot.val();
+                    if (answer) {
+                        activeQuestionAnswered(answer);
+                    }
+                });
         } else {
             displayNoActiveQuestion();
         }
@@ -54,7 +63,8 @@ function QuestionScreen() {
             return undefined;
         }
         const ref = `questions/${key}/answers/${user}`;
-        database.ref(ref).set(answer).then(activeQuestionAnswered);
+        database.ref(ref).set(answer)
+            .then(() => activeQuestionAnswered(answer));
     }
     function displayActiveQuestion(question) {
         const container = $('#root');
@@ -79,8 +89,14 @@ function QuestionScreen() {
         rendered.textContent = 'No active question at the moment.';
         container.appendChild(rendered);
     }
-    function activeQuestionAnswered() {
-        console.log('You have answered the active question.');
+    function activeQuestionAnswered(answer) {
+        const form = $('form');
+        const selected = $(`input[value="${answer}"]`, form);
+        selected.checked = true;
+        selected.closest('li').classList.add('selected');
+        $$('input[type="radio"]', form)
+            .forEach((choice) => choice.disabled = true);
+        $('button', form).remove();
     }
 
     this.template = 'template#question-screen';
