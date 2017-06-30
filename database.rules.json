@@ -1,6 +1,18 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    "active-question": {
+      ".read": "auth != null",
+      ".write": "auth.uid == '86TzrAvgwaQ8zHDlZgETY1l1rts2'"
+    },
+    "questions": {
+      ".read": "auth.uid == '86TzrAvgwaQ8zHDlZgETY1l1rts2'",
+      ".write": "auth.uid == '86TzrAvgwaQ8zHDlZgETY1l1rts2'"
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth.uid == $uid",
+        ".write": "auth.uid == $uid"
+      }
+    }
   }
 }
