@@ -140,6 +140,7 @@ function QuestionScreen() {
         }
     }
     function unsubscribeFromPushNotifications(subscription) {
+        const user = auth.currentUser.uid;
         subscription.unsubscribe();
         database.ref(`users/${user}/subscription`).remove();
         displayPushNotificationButton(false);
