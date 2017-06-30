@@ -43,3 +43,8 @@ self.addEventListener('activate', (event) => {
         })
     );
 })
+
+self.addEventListener('push', (event) => {
+    const notification = event.data ? event.data.json() : {};
+    console.log(notification);
+});
