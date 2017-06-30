@@ -48,5 +48,12 @@
 
         <script defer src="static/javascripts/router.js"></script>
         <script defer src="static/javascripts/main.js"></script>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => console.log('Registration was successful.'))
+                    .catch((error) => console.log('Registration was unsuccessful.'));
+            }
+        </script>
     </body>
 </html>
