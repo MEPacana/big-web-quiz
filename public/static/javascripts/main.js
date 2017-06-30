@@ -76,15 +76,10 @@ function QuestionScreen() {
             registration.pushManager.getSubscription().then((subscription) => {
                 const user = auth.currentUser.uid;
                 if (subscription) {
-                    subscription.unsubscribe();
-                    database.ref(`users/${user}/subscription`).remove();
-                    displayPushNotificationButton(false);
-                    return undefined;
+                    unsubscribeFromPushNotifications(subscription);
+                } else {
+                    subscribeToPushNotifications(registration);
                 }
-                registration.pushManager.subscribe({ userVisibleOnly: true }).then((subscription) => {
-                    database.ref(`users/${user}/subscription`).set(subscription.toJSON())
-                    displayPushNotificationButton(true);
-                });
             });
         });
     }
@@ -125,6 +120,29 @@ function QuestionScreen() {
         } else {
             subscribeButton.textContent = 'Notify Me';
         }
+    }
+    function subscribeToPushNotifications(registration) {
+        const user = auth.currentUser.uid;
+        if (Notification.permission === 'granted') {
+            handleNotificationPermission();
+        } else if (Notification.permission === 'default')  {
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    handleNotificationPermission();
+                }
+            });
+        }
+        function handleNotificationPermission() {
+            registration.pushManager.subscribe({ userVisibleOnly: true }).then((subscription) => {
+                database.ref(`users/${user}/subscription`).set(subscription.toJSON())
+                displayPushNotificationButton(true);
+            });
+        }
+    }
+    function unsubscribeFromPushNotifications(subscription) {
+        subscription.unsubscribe();
+        database.ref(`users/${user}/subscription`).remove();
+        displayPushNotificationButton(false);
     }
 
     this.template = 'template#question-screen';
