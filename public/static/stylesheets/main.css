@@ -3,6 +3,11 @@
     src: url("../fonts/Sequel-Regular.ttf") format("truetype");
 }
 
+@font-face {
+    font-family: "Wask New";
+    src: url("../fonts/Wask-New.otf") format("truetype");
+}
+
 *,
 *::before,
 *::after {
@@ -42,6 +47,16 @@ img.login-btn {
     margin-top: 15px;
 }
 
-.hidden {
-    display: none !important;
+.question-screen {
+    width: 100vw;
+    height; 100vh;
+    border: solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.question {
+    font-family: "Wask New";
 }
