@@ -9,12 +9,16 @@ exports.updateUserScore = functions.database.ref('users/{userId}/answers/{questi
             const userAnswer = parseInt(e.data.val(), 10);
             e.data.ref.parent.parent.child('score').once('value', (snapshot) => {
                 const score = snapshot.val() || 0;
+                const userRef = snapshot.ref.parent;
                 if (userAnswer === correctAnswer) {
                     snapshot.ref.set(score + 1);
+                    userRef.setPriority(-(score + 1));
                 } else if (e.data.previous.exists()) {
                     snapshot.ref.set(score - 1);
+                    userRef.setPriority(-(score - 1));
                 } else {
                     snapshot.ref.set(score);
+                    userRef.setPriority(-score);
                 }
                 resolve(score);
             });
