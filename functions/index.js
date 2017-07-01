@@ -8,16 +8,21 @@ exports.updateUserScore = functions.database.ref('users/{userId}/answers/{questi
         e.data.adminRef.root.child(`questions/${questionId}/choices`).once('value', (snapshot) => {
             const choices = snapshot.val();
             const correctAnswer = choices.findIndex((choice) => choice.correct);
-            const userAnswer = parseInt(e.data.val(), 10);
             e.data.adminRef.parent.parent.child('score').once('value', (snapshot) => {
                 const score = snapshot.val() || 0;
                 const userRef = snapshot.ref.parent;
-                if (userAnswer === correctAnswer) {
-                    snapshot.ref.set(score + 1);
-                    userRef.setPriority(-(score + 1));
+                if (e.data.exists()) {
+                    const userAnswer = parseInt(e.data.val(), 10);
+                    if (userAnswer === correctAnswer) {
+                        snapshot.ref.set(score + 1);
+                        userRef.setPriority(-(score + 1));
+                    }
                 } else if (e.data.previous.exists()) {
-                    snapshot.ref.set(score - 1);
-                    userRef.setPriority(-(score - 1));
+                    const userAnswer = parseInt(e.data.previous.val(), 10);
+                    if (userAnswer === correctAnswer) {
+                        snapshot.ref.set(score - 1);
+                        userRef.setPriority(-(score - 1));
+                    }
                 } else {
                     snapshot.ref.set(score);
                     userRef.setPriority(-score);
