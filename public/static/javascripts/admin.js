@@ -48,6 +48,7 @@ function AdminScreen() {
 
     function resetForm() {
         $('form').question.value = '';
+        $('form').dataset.key = null;
         $('#choices').innerHTML = '';
         for (let i = 0; i < 2; i++) {
             insertChoice();
