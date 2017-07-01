@@ -34,6 +34,10 @@
           ".write": "auth.uid == $uid"
         }
       }
+    },
+    "leaderboard": {
+      ".read": true,
+      ".write": false
     }
   }
 }

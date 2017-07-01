@@ -3,6 +3,7 @@ const webpush = require('web-push');
 const request = require('request');
 
 exports.updateUserScore = functions.database.ref('users/{userId}/answers/{questionId}').onWrite((e) => {
+    const userId = e.params.userId;
     const questionId = e.params.questionId;
     return new Promise((resolve, reject) => {
         e.data.adminRef.root.child(`questions/${questionId}/choices`).once('value', (snapshot) => {
@@ -11,23 +12,33 @@ exports.updateUserScore = functions.database.ref('users/{userId}/answers/{questi
             e.data.adminRef.parent.parent.child('score').once('value', (snapshot) => {
                 const score = snapshot.val() || 0;
                 const userRef = snapshot.ref.parent;
-                if (e.data.exists()) {
-                    const userAnswer = parseInt(e.data.val(), 10);
-                    if (userAnswer === correctAnswer) {
-                        snapshot.ref.set(score + 1);
-                        userRef.setPriority(-(score + 1));
+                const scoreRef = snapshot.ref;
+                e.data.adminRef.parent.parent.once('value', (snapshot) => {
+                    const profile = snapshot.val();
+                    if (e.data.exists()) {
+                        const userAnswer = parseInt(e.data.val(), 10);
+                        if (userAnswer === correctAnswer) {
+                            scoreRef.set(score + 1);
+                            userRef.setPriority(-(score + 1));
+                            profile.score = score + 1;
+                            e.data.adminRef.root.child(`leaderboard/${userId}`).setWithPriority(profile, -profile.score);
+                        }
+                    } else if (e.data.previous.exists()) {
+                        const userAnswer = parseInt(e.data.previous.val(), 10);
+                        if (userAnswer === correctAnswer) {
+                            scoreRef.set(score - 1);
+                            userRef.setPriority(-(score - 1));
+                            profile.score = score - 1;
+                            e.data.adminRef.root.child(`leaderboard/${userId}`).setWithPriority(profile, -profile.score);
+                        }
+                    } else {
+                        scoreRef.set(score);
+                        userRef.setPriority(-score);
+                        profile.score = score;
+                        e.data.adminRef.root.child(`leaderboard/${userId}`).setWithPriority(profile, -profile.score);
                     }
-                } else if (e.data.previous.exists()) {
-                    const userAnswer = parseInt(e.data.previous.val(), 10);
-                    if (userAnswer === correctAnswer) {
-                        snapshot.ref.set(score - 1);
-                        userRef.setPriority(-(score - 1));
-                    }
-                } else {
-                    snapshot.ref.set(score);
-                    userRef.setPriority(-score);
-                }
-                resolve(score);
+                    resolve(score);
+                });
             });
         });
     });
