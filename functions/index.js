@@ -14,7 +14,8 @@ exports.updateUserScore = functions.database.ref('users/{userId}/answers/{questi
                 const userRef = snapshot.ref.parent;
                 const scoreRef = snapshot.ref;
                 e.data.adminRef.parent.parent.once('value', (snapshot) => {
-                    const profile = snapshot.val();
+                    const data = snapshot.val();
+                    const profile = { name: data.name, avatar: data.avatar };
                     if (e.data.exists()) {
                         const userAnswer = parseInt(e.data.val(), 10);
                         if (userAnswer === correctAnswer) {
