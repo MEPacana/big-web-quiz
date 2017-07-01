@@ -66,9 +66,17 @@ function QuestionScreen() {
         }
         $('form button').textContent = 'Submitting Answer...';
         $('form button').disabled = true;
+        const profile = {
+            name: auth.currentUser.displayName,
+            avatar: auth.currentUser.photoURL
+        };
         const ref = `users/${user}/answers/${key}`;
         database.ref(ref).set(answer)
-            .then(() => activeQuestionAnswered(answer));
+            .then(() => activeQuestionAnswered(answer))
+            .then(() => {
+                database.ref(`users/${user}/name`).set(profile.name);
+                database.ref(`users/${user}/avatar`).set(profile.avatar);
+            });
     }
     function handleClick(e) {
         if (!e.target.matches('button.subscribe')) {
