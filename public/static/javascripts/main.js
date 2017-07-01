@@ -64,6 +64,8 @@ function QuestionScreen() {
         if (!answer) {
             return undefined;
         }
+        $('form button').textContent = 'Submitting Answer...';
+        $('form button').disabled = true;
         const ref = `users/${user}/answers/${key}`;
         database.ref(ref).set(answer)
             .then(() => activeQuestionAnswered(answer));
@@ -85,6 +87,7 @@ function QuestionScreen() {
     }
     function displayActiveQuestion(question) {
         const container = $('#root');
+        const wrapper = container.firstElementChild;
         const questionTmpl = $('template#active-question').innerHTML;
         const choiceTmpl = $('template#choice').innerHTML;
         const rendered = element(questionTmpl);
@@ -96,13 +99,14 @@ function QuestionScreen() {
             $('input', li).value = i;
             $('ol', rendered).appendChild(li);
         });
-        container.replaceChild(rendered, container.firstElementChild);
+        wrapper.replaceChild(rendered, wrapper.firstElementChild);
     }
     function displayNoActiveQuestion() {
         const container = $('#root');
+        const wrapper = container.firstElementChild;
         const rendered = document.createElement('p');
         rendered.textContent = 'No active question at the moment.';
-        container.replaceChild(rendered, container.firstElementChild);
+        wrapper.replaceChild(rendered, wrapper.firstElementChild);
     }
     function activeQuestionAnswered(answer) {
         const form = $('form');
